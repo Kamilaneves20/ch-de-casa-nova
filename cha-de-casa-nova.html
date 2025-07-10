@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meu Chá de Casa Nova</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff8f0;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    h1 {
+      background-color: #f4a261;
+      color: white;
+      padding: 20px;
+      margin: 0;
+    }
+    form {
+      margin: 20px auto;
+      padding: 20px;
+      background: #fefefe;
+      border-radius: 8px;
+      max-width: 500px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: calc(100% - 22px);
+    }
+    button {
+      background-color: #2a9d8f;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #21867a;
+    }
+    .gift-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 20px;
+    }
+    .gift-card {
+      background-color: #fff;
+      border: 2px solid #2a9d8f;
+      border-radius: 10px;
+      margin: 10px;
+      padding: 15px;
+      width: 250px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+    .gift-card.unavailable {
+      background-color: #f0f0f0;
+      border-color: #aaa;
+      opacity: 0.7;
+    }
+    .gift-card img {
+      max-width: 100%;
+      border-radius: 5px;
+    }
+    .status-button {
+      margin-top: 10px;
+      background-color: #e76f51;
+    }
+    .status-button:hover {
+      background-color: #d1573d;
+    }
+  </style>
+</head>
+<body>
+  <h1>Meu Chá de Casa Nova 🎁</h1>
+  <form id="giftForm">
+    <input type="text" id="giftName" placeholder="Nome do presente" required><br>
+    <input type="url" id="giftLink" placeholder="Link do presente" required><br>
+    <input type="url" id="giftImage" placeholder="URL da imagem" required><br>
+    <button type="submit">Adicionar presente</button>
+  </form>
+  <div class="gift-list" id="giftList"></div>
+
+  <script>
+    const form = document.getElementById('giftForm');
+    const list = document.getElementById('giftList');
+    let gifts = JSON.parse(localStorage.getItem('gifts')) || [];
+
+    function saveGifts() {
+      localStorage.setItem('gifts', JSON.stringify(gifts));
+    }
+
+    function renderGifts() {
+      list.innerHTML = '';
+      gifts.forEach((gift, index) => {
+        const card = document.createElement('div');
+        card.className = 'gift-card' + (gift.unavailable ? ' unavailable' : '');
+        card.innerHTML = `
+          <img src="${gift.image}" alt="${gift.name}">
+          <h3>${gift.name}</h3>
+          <a href="${gift.link}" target="_blank">Ver presente</a><br>
+          <button class="status-button">${gift.unavailable ? 'Marcar como Disponível' : 'Marcar como Indisponível'}</button>
+        `;
+        const statusBtn = card.querySelector('.status-button');
+        statusBtn.addEventListener('click', () => {
+          gifts[index].unavailable = !gifts[index].unavailable;
+          saveGifts();
+          renderGifts();
+        });
+        list.appendChild(card);
+      });
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('giftName').value;
+      const link = document.getElementById('giftLink').value;
+      const image = document.getElementById('giftImage').value;
+      gifts.push({ name, link, image, unavailable: false });
+      saveGifts();
+      renderGifts();
+      form.reset();
+    });
+
+    renderGifts();
+  </script>
+</body>
+</html>
